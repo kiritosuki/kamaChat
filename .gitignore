@@ -38,3 +38,16 @@ internal/service/kafka/start.bat
 *.sh
 
 *.ext
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
