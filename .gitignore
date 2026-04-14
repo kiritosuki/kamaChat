@@ -33,8 +33,6 @@ static/files/*
 
 web/chat-server/src/assets/cert/*
 
-internal/service/kafka/start.bat
-
 *.sh
 
 *.ext
@@ -51,3 +49,8 @@ internal/service/kafka/start.bat
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+/configs/config-dev.toml
+
+/logs
+/cmd/kama_chat_server/logs

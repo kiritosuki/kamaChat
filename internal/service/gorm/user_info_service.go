@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	redis "github.com/go-redis/redis/v8"
-	"gorm.io/gorm"
 	"kama_chat_server/internal/dao"
 	"kama_chat_server/internal/dto/request"
 	"kama_chat_server/internal/dto/respond"
@@ -18,6 +16,9 @@ import (
 	"kama_chat_server/pkg/zlog"
 	"regexp"
 	"time"
+
+	redis "github.com/go-redis/redis/v8"
+	"gorm.io/gorm"
 )
 
 type userInfoService struct {
@@ -230,6 +231,9 @@ func (u *userInfoService) Register(registerReq request.RegisterRequest) (string,
 // 某用户修改了信息，可能会影响contact_user_list，不需要删除redis的contact_user_list，timeout之后会自己更新
 // 但是需要更新redis的user_info，因为可能影响用户搜索
 func (u *userInfoService) UpdateUserInfo(updateReq request.UpdateUserInfoRequest) (string, int) {
+	if err := myredis.DelKeysWithPattern("user_info_" + updateReq.Uuid); err != nil {
+		zlog.Error(err.Error())
+	}
 	var user model.UserInfo
 	if res := dao.GormDB.First(&user, "uuid = ?", updateReq.Uuid); res.Error != nil {
 		zlog.Error(res.Error.Error())
@@ -254,9 +258,6 @@ func (u *userInfoService) UpdateUserInfo(updateReq request.UpdateUserInfoRequest
 		zlog.Error(res.Error.Error())
 		return constants.SYSTEM_ERROR, -1
 	}
-	//if err := myredis.DelKeysWithPattern("user_info_" + updateReq.Uuid); err != nil {
-	//	zlog.Error(err.Error())
-	//}
 	return "修改用户信息成功", 0
 }
 
@@ -461,13 +462,13 @@ func (u *userInfoService) GetUserInfo(uuid string) (string, *respond.GetUserInfo
 				IsAdmin:   user.IsAdmin,
 				Status:    user.Status,
 			}
-			//rspString, err := json.Marshal(rsp)
-			//if err != nil {
-			//	zlog.Error(err.Error())
-			//}
-			//if err := myredis.SetKeyEx("user_info_"+uuid, string(rspString), constants.REDIS_TIMEOUT*time.Minute); err != nil {
-			//	zlog.Error(err.Error())
-			//}
+			rspString, err := json.Marshal(rsp)
+			if err != nil {
+				zlog.Error(err.Error())
+			}
+			if err := myredis.SetKeyEx("user_info_"+uuid, string(rspString), constants.REDIS_TIMEOUT*time.Minute); err != nil {
+				zlog.Error(err.Error())
+			}
 			return "获取用户信息成功", &rsp, 0
 		} else {
 			zlog.Error(err.Error())

@@ -1,13 +1,14 @@
 package zlog
 
 import (
-	"github.com/natefinch/lumberjack"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"kama_chat_server/internal/config"
 	"os"
 	"path"
 	"runtime"
+
+	"github.com/natefinch/lumberjack"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var logger *zap.Logger

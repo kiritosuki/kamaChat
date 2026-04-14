@@ -1,23 +1,17 @@
-package https_server
+package http_server
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	v1 "kama_chat_server/api/v1"
 	"kama_chat_server/internal/config"
-	"kama_chat_server/pkg/ssl"
+
+	"github.com/gin-gonic/gin"
 )
 
 var GE *gin.Engine
 
 func init() {
 	GE = gin.Default()
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"*"}
-	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
-	GE.Use(cors.New(corsConfig))
-	GE.Use(ssl.TlsHandler(config.GetConfig().MainConfig.Host, config.GetConfig().MainConfig.Port))
+	//GE.Use(ssl.TlsHandler(config.GetConfig().MainConfig.Host, config.GetConfig().MainConfig.Port))
 	GE.Static("/static/avatars", config.GetConfig().StaticAvatarPath)
 	GE.Static("/static/files", config.GetConfig().StaticFilePath)
 	GE.POST("/login", v1.Login)

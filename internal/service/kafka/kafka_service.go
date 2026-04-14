@@ -2,10 +2,11 @@ package kafka
 
 import (
 	"context"
-	"github.com/segmentio/kafka-go"
 	myconfig "kama_chat_server/internal/config"
 	"kama_chat_server/pkg/zlog"
 	"time"
+
+	"github.com/segmentio/kafka-go"
 )
 
 var ctx = context.Background()

@@ -2,10 +2,6 @@ package sms
 
 import (
 	"fmt"
-	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
-	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v4/client"
-	util "github.com/alibabacloud-go/tea-utils/v2/service"
-	"github.com/alibabacloud-go/tea/tea"
 	"kama_chat_server/internal/config"
 	"kama_chat_server/internal/service/redis"
 	"kama_chat_server/pkg/constants"
@@ -13,6 +9,10 @@ import (
 	"kama_chat_server/pkg/zlog"
 	"strconv"
 	"time"
+
+	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v4/client"
+	"github.com/alibabacloud-go/tea/tea"
 )
 
 var smsClient *dysmsapi20170525.Client
@@ -38,11 +38,11 @@ func createClient() (result *dysmsapi20170525.Client, err error) {
 }
 
 func VerificationCode(telephone string) (string, int) {
-	client, err := createClient()
-	if err != nil {
-		zlog.Error(err.Error())
-		return constants.SYSTEM_ERROR, -1
-	}
+	//client, err := createClient()
+	//if err != nil {
+	//	zlog.Error(err.Error())
+	//	return constants.SYSTEM_ERROR, -1
+	//}
 	key := "auth_code_" + telephone
 	code, err := redis.GetKey(key)
 	if err != nil {
@@ -64,20 +64,21 @@ func VerificationCode(telephone string) (string, int) {
 		zlog.Error(err.Error())
 		return constants.SYSTEM_ERROR, -1
 	}
-	sendSmsRequest := &dysmsapi20170525.SendSmsRequest{
-		SignName:      tea.String("阿里云短信测试"),
-		TemplateCode:  tea.String("SMS_154950909"), // 短信模板
-		PhoneNumbers:  tea.String(telephone),
-		TemplateParam: tea.String("{\"code\":\"" + code + "\"}"),
-	}
+	//sendSmsRequest := &dysmsapi20170525.SendSmsRequest{
+	//	SignName:      tea.String("阿里云短信测试"),
+	//	TemplateCode:  tea.String("SMS_154950909"), // 短信模板
+	//	PhoneNumbers:  tea.String(telephone),
+	//	TemplateParam: tea.String("{\"code\":\"" + code + "\"}"),
+	//}
 
-	runtime := &util.RuntimeOptions{}
+	//runtime := &util.RuntimeOptions{}
 	// 目前使用的是测试专用签名，签名必须是“阿里云短信测试”，模板code为“SMS_154950909”
-	rsp, err := client.SendSmsWithOptions(sendSmsRequest, runtime)
-	if err != nil {
-		zlog.Error(err.Error())
-		return constants.SYSTEM_ERROR, -1
-	}
-	zlog.Info(*util.ToJSONString(rsp))
+	//rsp, err := client.SendSmsWithOptions(sendSmsRequest, runtime)
+	//if err != nil {
+	//	zlog.Error(err.Error())
+	//	return constants.SYSTEM_ERROR, -1
+	//}
+	//zlog.Info(*util.ToJSONString(rsp))
+	fmt.Println("验证码:", code)
 	return "验证码发送成功，请及时在对应电话查收短信", 0
 }

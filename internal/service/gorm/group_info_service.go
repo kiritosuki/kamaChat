@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/go-redis/redis/v8"
-	"gorm.io/gorm"
 	"kama_chat_server/internal/dao"
 	"kama_chat_server/internal/dto/request"
 	"kama_chat_server/internal/dto/respond"
@@ -19,6 +17,9 @@ import (
 	"kama_chat_server/pkg/zlog"
 	"log"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	"gorm.io/gorm"
 )
 
 type groupInfoService struct {
@@ -69,6 +70,9 @@ var GroupInfoService = new(groupInfoService)
 
 // CreateGroup 创建群聊
 func (g *groupInfoService) CreateGroup(groupReq request.CreateGroupRequest) (string, int) {
+	if err := myredis.DelKeysWithPattern("contact_mygroup_list_" + groupReq.OwnerId); err != nil {
+		zlog.Error(err.Error())
+	}
 	group := model.GroupInfo{
 		Uuid:      fmt.Sprintf("G%s", random.GetNowAndLenRandomString(11)),
 		Name:      groupReq.Name,
@@ -106,9 +110,6 @@ func (g *groupInfoService) CreateGroup(groupReq request.CreateGroupRequest) (str
 	if res := dao.GormDB.Create(&contact); res.Error != nil {
 		zlog.Error(res.Error.Error())
 		return constants.SYSTEM_ERROR, -1
-	}
-	if err := myredis.DelKeysWithPattern("contact_mygroup_list_" + groupReq.OwnerId); err != nil {
-		zlog.Error(err.Error())
 	}
 
 	return "创建成功", 0
